@@ -10,7 +10,7 @@ const { promisify } = require('util');
 const sleep = promisify(setTimeout);
 
 const app = express();
-const PORT = process.env.PORT || 3500;
+const PORT = process.env.PORT || 8003;
 
 function resolveDefaultBaseUrl() {
   const interfaces = os.networkInterfaces();
