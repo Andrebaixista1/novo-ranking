@@ -1,19 +1,21 @@
-import React, { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import DashboardSemaforo from "./DashboardSemaforo";
 import DashboardRanking from "./DashboardRanking";
+import { apiUrl } from "../utils/api";
+import { FiMaximize2, FiMinimize2 } from "react-icons/fi";
 
 const TEMPO_SEMAFORO = 30 * 1000;    // 30 segundos
 const TEMPO_RANKING = 30 * 1000;     // 30 segundos
 
 export default function PainelRotativo() {
-  const [painelAtivo, setPainelAtivo] = useState(0); // 0 = semáforo, 1 = ranking
+  const [painelAtivo, setPainelAtivo] = useState(0); // 0 = semÃ¡foro, 1 = ranking
   const [rankingData, setRankingData] = useState([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Função para buscar dados do ranking
+  // FunÃ§Ã£o para buscar dados do ranking
   const fetchRanking = useCallback(async () => {
     try {
-      const res = await fetch("http://26.51.147.22:3500/api/ranking?empresa=VIEIRACRED");
+  const res = await fetch(apiUrl("/api/ranking?empresa=VIEIRACRED"));
       
       if (!res.ok) {
         throw new Error(`Erro HTTP: ${res.status}`);
@@ -26,7 +28,7 @@ export default function PainelRotativo() {
     }
   }, []);
 
-  // Controle da rotação de painéis
+  // Controle da rotaÃ§Ã£o de painÃ©is
   useEffect(() => {
     const timer = setInterval(() => {
       setPainelAtivo(prev => (prev === 0 ? 1 : 0));
@@ -35,14 +37,14 @@ export default function PainelRotativo() {
     return () => clearInterval(timer);
   }, [painelAtivo]);
 
-  // Busca inicial e configuração de intervalo para atualização
+  // Busca inicial e configuraÃ§Ã£o de intervalo para atualizaÃ§Ã£o
   useEffect(() => {
     fetchRanking();
     const interval = setInterval(fetchRanking, 5 * 60 * 1000); // 5 minutos
     return () => clearInterval(interval);
   }, [fetchRanking]);
 
-  // Funções para controle de tela cheia
+  // FunÃ§Ãµes para controle de tela cheia
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(err => {
@@ -53,7 +55,7 @@ export default function PainelRotativo() {
     }
   }, []);
 
-  // Monitorar mudanças de tela cheia
+  // Monitorar mudanÃ§as de tela cheia
   useEffect(() => {
     const handler = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -65,16 +67,16 @@ export default function PainelRotativo() {
 
   return (
     <div className="relative w-full min-h-screen">
-      {/* Botão de tela cheia */}
+      {/* BotÃ£o de tela cheia */}
       <button 
         onClick={toggleFullscreen}
         className="fixed top-4 right-4 z-50 p-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors shadow-md"
         title={isFullscreen ? "Sair da tela cheia" : "Entrar em tela cheia"}
       >
-        {isFullscreen ? "⤵️" : "⤴️"}
+        {isFullscreen ? <FiMinimize2 className="text-xl" /> : <FiMaximize2 className="text-xl" />}
       </button>
 
-      {/* Painéis */}
+      {/* PainÃ©is */}
       <div className={`${painelAtivo === 0 ? 'block' : 'hidden'}`}>
         <DashboardSemaforo />
       </div>
@@ -85,3 +87,7 @@ export default function PainelRotativo() {
     </div>
   );
 }
+
+
+
+

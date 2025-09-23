@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
+import { apiUrl } from "../utils/api";
 import { FiPhone, FiPause, FiCheck, FiUsers, FiZap, FiCheckCircle } from "react-icons/fi";
 
 const STATUS_CONFIG = [
@@ -45,17 +46,17 @@ export default function DashboardSemaforo() {
     meta_clt: 0,
     logados_estagio: 0,
     meta_estagio: 0,
-    filtro: "CLT+Estágio"
+    filtro: "CLT+EstÃ¡gio"
   });
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://26.51.147.22:3500/api/status-operadores");
+  const res = await fetch(apiUrl("/api/status-operadores"));
         const data = await res.json();
         
-        // Usar diretamente os dados do backend (já filtrados)
+        // Usar diretamente os dados do backend (jÃ¡ filtrados)
         setOperadores(Array.isArray(data.operadores) ? data.operadores : []);
         
         // Usar os dados de status calculados pelo backend
@@ -182,7 +183,7 @@ export default function DashboardSemaforo() {
                     ({percentStatus}%)
                   </span>
                 </span>
-                <span className="text-base font-semibold text-white drop-shadow mb-2">Média: {avg}</span>
+                <span className="text-base font-semibold text-white drop-shadow mb-2">MÃ©dia: {avg}</span>
               </div>
               
               {/* Operator list */}
@@ -262,7 +263,7 @@ export default function DashboardSemaforo() {
                 )}
                 {percent <= 24 && idx === 2 && (
                   <span className="text-red-600 font-bold text-3xl text-center animate-pulse w-full">
-                    Atenção: Nível crítico de logados!
+                    AtenÃ§Ã£o: NÃ­vel crÃ­tico de logados!
                   </span>
                 )}
                 {percent === 100 && idx === 1 && (
@@ -276,7 +277,7 @@ export default function DashboardSemaforo() {
                     }}
                     className="font-bold text-3xl text-center w-full"
                   >
-                    Energia máxima para bater meta!
+                    Energia mÃ¡xima para bater meta!
                   </span>
                 )}
               </div>

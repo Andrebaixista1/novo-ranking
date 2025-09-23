@@ -1,5 +1,6 @@
 // server.js - Backend Otimizado com Melhor Performance
-require('dotenv').config({ path: '.env' });
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const sql = require('mssql');
@@ -9,6 +10,7 @@ const sleep = promisify(setTimeout);
 
 const app = express();
 const PORT = process.env.PORT || 3500;
+const BASE_URL = (process.env.APP_BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 // Configurações de performance
 const ARGUS_TIMEOUT = parseInt(process.env.ARGUS_TIMEOUT) || 5000; // 5 segundos
@@ -608,11 +610,11 @@ app.listen(PORT, async () => {
     await testCloudConnection();
   }, 5 * 60 * 1000);
   
-  console.log(`❤️ Health check disponível em: http://26.51.147.22:${PORT}/health`);
-  console.log(`🔌 Teste de conexão disponível em: http://26.51.147.22:${PORT}/test-connection`);
-  console.log(`📊 API Ranking disponível em: http://26.51.147.22:${PORT}/api/ranking?empresa=VIEIRACRED`);
-  console.log(`📈 API Status Operadores disponível em: http://26.51.147.22:${PORT}/api/status-operadores`);
-  console.log(`🏢 Lista de empresas disponível em: http://26.51.147.22:${PORT}/api/empresas`);
+  console.log(`❤️ Health check disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/health`);
+  console.log(`🔌 Teste de conexão disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/test-connection`);
+  console.log(`📊 API Ranking disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/ranking?empresa=VIEIRACRED`);
+  console.log(`📈 API Status Operadores disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/status-operadores`);
+  console.log(`🏢 Lista de empresas disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/empresas`);
 });
 
 // Gerenciar encerramento graceful
@@ -621,3 +623,5 @@ process.on('SIGINT', async () => {
   await sql.close();
   process.exit(0);
 });
+
+

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../utils/api';
 
-// Medalha/ícone com mesma largura SEMPRE
+// Medalha/Ã­cone com mesma largura SEMPRE
 const renderPosicao = (idx) => {
   const style = { 
     width: 52, 
@@ -9,9 +10,9 @@ const renderPosicao = (idx) => {
     justifyContent: 'center' 
   };
   
-  if (idx === 0) return <div style={style}>🥇</div>;
-  if (idx === 1) return <div style={style}>🥈</div>;
-  if (idx === 2) return <div style={style}>🥉</div>;
+  if (idx === 0) return <div style={style}>ðŸ¥‡</div>;
+  if (idx === 1) return <div style={style}>ðŸ¥ˆ</div>;
+  if (idx === 2) return <div style={style}>ðŸ¥‰</div>;
   
   return <div style={{ 
     ...style, 
@@ -21,7 +22,7 @@ const renderPosicao = (idx) => {
   }}>{idx + 1}</div>;
 };
 
-// Função para formatar valores monetários corretamente
+// FunÃ§Ã£o para formatar valores monetÃ¡rios corretamente
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -218,7 +219,7 @@ const userDefault = "/user-default.png";
 const RankingList = ({ data }) => (
   <div style={styles.list}>
     {data.slice(0, 5).map((vendedor, idx) => {
-      // Aplicar estilo do pódio para os 3 primeiros
+      // Aplicar estilo do pÃ³dio para os 3 primeiros
       // e estilo top5 para os demais
       let itemStyle = { ...styles.item, ...styles.top5Item };
       let photoStyle = { ...styles.photo, ...styles.top5Photo };
@@ -271,8 +272,8 @@ const Ranking = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // URL corrigida para a API do backend
-        const res = await fetch("http://26.51.147.22:3500/api/ranking?empresa=VIEIRACRED");
+  // URL corrigida para a API do backend
+  const res = await fetch(apiUrl("/api/ranking?empresa=VIEIRACRED"));
         
         if (!res.ok) {
           throw new Error(`Erro HTTP: ${res.status}`);
@@ -284,7 +285,7 @@ const Ranking = () => {
         const rankingArray = Array.isArray(data) ? data : 
                             (Array.isArray(data.ranking) ? data.ranking : []);
         
-        // Garante que os valores sejam números
+        // Garante que os valores sejam nÃºmeros
         const formattedData = rankingArray.map(item => ({
           ...item,
           valorVendido: typeof item.valorVendido === 'string'
@@ -335,7 +336,7 @@ const Ranking = () => {
           <RankingList data={rankingData} />
         ) : (
           <div style={styles.loadingContainer}>
-            <span style={styles.loadingText}>Nenhum dado disponível</span>
+            <span style={styles.loadingText}>Nenhum dado disponÃ­vel</span>
           </div>
         )}
       </div>
