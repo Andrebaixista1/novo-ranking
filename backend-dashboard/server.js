@@ -78,11 +78,6 @@ const cloudDbConfig = {
 app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  console.log(`--> ${req.method} ${req.url}`);
-  next();
-});
-
 // Variáveis para armazenar o estado das conexões
 let isLocalConnected = false;
 let isCloudConnected = false;
@@ -617,7 +612,7 @@ app.use((error, req, res, next) => {
 });
 
 // Iniciar servidor e testar conexões
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Servidor iniciado na porta ${PORT}`);
   console.log('🔌 Testando conexões com os bancos de dados...');
   console.log(`Base URL detectada: ${BASE_URL}`);
@@ -645,5 +640,3 @@ process.on('SIGINT', async () => {
   await sql.close();
   process.exit(0);
 });
-
-
