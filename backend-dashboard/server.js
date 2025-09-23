@@ -1,5 +1,6 @@
 // server.js - Backend Otimizado com Melhor Performance
 const path = require('path');
+const os = require('os');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
@@ -10,7 +11,22 @@ const sleep = promisify(setTimeout);
 
 const app = express();
 const PORT = process.env.PORT || 3500;
-const BASE_URL = (process.env.APP_BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
+
+function resolveDefaultBaseUrl() {
+  const interfaces = os.networkInterfaces();
+  for (const addresses of Object.values(interfaces)) {
+    if (!addresses) continue;
+    for (const addressInfo of addresses) {
+      if (addressInfo && addressInfo.family === 'IPv4' && !addressInfo.internal) {
+        return `http://${addressInfo.address}:${PORT}`;
+      }
+    }
+  }
+
+  return `http://localhost:${PORT}`;
+}
+
+const BASE_URL = (process.env.APP_BASE_URL || resolveDefaultBaseUrl()).replace(/\/$/, '');
 
 // Configurações de performance
 const ARGUS_TIMEOUT = parseInt(process.env.ARGUS_TIMEOUT) || 5000; // 5 segundos
@@ -62,6 +78,11 @@ const cloudDbConfig = {
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`--> ${req.method} ${req.url}`);
+  next();
+});
+
 // Variáveis para armazenar o estado das conexões
 let isLocalConnected = false;
 let isCloudConnected = false;
@@ -74,7 +95,7 @@ let operadoresCache = {
   fetchPromise: null
 };
 
-// Função para testar a conexão com o banco local
+// Função para testar a conexao com o banco local
 async function testLocalConnection() {
   try {
     const pool = await sql.connect(localDbConfig);
@@ -86,12 +107,12 @@ async function testLocalConnection() {
     return true;
   } catch (error) {
     isLocalConnected = false;
-    console.error('❌ ERRO na conexão com o Banco Local:', error.message);
+    console.error('❌ ERRO na conexao com o Banco Local:', error.message);
     return false;
   }
 }
 
-// Função para testar a conexão com o banco na nuvem
+// Função para testar a conexao com o banco na nuvem
 async function testCloudConnection() {
   try {
     const pool = await sql.connect(cloudDbConfig);
@@ -103,7 +124,7 @@ async function testCloudConnection() {
     return true;
   } catch (error) {
     isCloudConnected = false;
-    console.error('❌ ERRO na conexão com o Banco na Nuvem:', error.message);
+    console.error('❌ ERRO na conexao com o Banco na Nuvem:', error.message);
     return false;
   }
 }
@@ -155,7 +176,7 @@ async function buscarImagemPerfil(vendedorId) {
         console.log(`✅ Imagem válida encontrada para vendedor ${vendedorId}`);
         return imagePerfil;
       } else {
-        console.log(`ℹ️ Imagem não disponível ou inválida para vendedor ${vendedorId}, usando padrão`);
+        console.log(`ℹ️ Imagem não disponivel ou inválida para vendedor ${vendedorId}, usando padrão`);
         return '/LOGO-vieira.jpeg';
       }
     } else {
@@ -561,9 +582,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Rota para forçar teste de conexão
+// Rota para forçar teste de conexao
 app.get('/test-connection', async (req, res) => {
-  console.log('🔌 Recebida solicitação para testar conexão');
+  console.log('🔌 Recebida solicitação para testar conexao');
   const localResult = await testLocalConnection();
   const cloudResult = await testCloudConnection();
   
@@ -571,11 +592,11 @@ app.get('/test-connection', async (req, res) => {
     success: localResult && cloudResult,
     local: {
       success: localResult,
-      message: localResult ? 'Conexão bem-sucedida' : 'Falha na conexão'
+      message: localResult ? 'Conexão bem-sucedida' : 'Falha na conexao'
     },
     cloud: {
       success: cloudResult,
-      message: cloudResult ? 'Conexão bem-sucedida' : 'Falha na conexão'
+      message: cloudResult ? 'Conexão bem-sucedida' : 'Falha na conexao'
     }
   });
 });
@@ -596,9 +617,10 @@ app.use((error, req, res, next) => {
 });
 
 // Iniciar servidor e testar conexões
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Servidor iniciado na porta ${PORT}`);
   console.log('🔌 Testando conexões com os bancos de dados...');
+  console.log(`Base URL detectada: ${BASE_URL}`);
   
   // Testar conexões imediatamente ao iniciar
   await testLocalConnection();
@@ -610,11 +632,11 @@ app.listen(PORT, async () => {
     await testCloudConnection();
   }, 5 * 60 * 1000);
   
-  console.log(`❤️ Health check disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/health`);
-  console.log(`🔌 Teste de conexão disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/test-connection`);
-  console.log(`📊 API Ranking disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/ranking?empresa=VIEIRACRED`);
-  console.log(`📈 API Status Operadores disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/status-operadores`);
-  console.log(`🏢 Lista de empresas disponível em: http://ubuntu.sistemavieira.com.br:${PORT}/api/empresas`);
+  console.log(`?? Health check disponivel em: ${BASE_URL}/health`);
+  console.log(`?? Teste de conexao disponivel em: ${BASE_URL}/test-connection`);
+  console.log(`?? API Ranking disponivel em: ${BASE_URL}/api/ranking?empresa=VIEIRACRED`);
+  console.log(`?? API Status Operadores disponivel em: ${BASE_URL}/api/status-operadores`);
+  console.log(`?? Lista de empresas disponivel em: ${BASE_URL}/api/empresas`);
 });
 
 // Gerenciar encerramento graceful
