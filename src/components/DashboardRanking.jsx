@@ -1,18 +1,19 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { apiUrl } from '../utils/api';
 
-// Medalha/Ã­cone com mesma largura SEMPRE
+// Medalha/ícone com mesma largura SEMPRE
 const renderPosicao = (idx) => {
   const style = { 
     width: 52, 
     display: 'flex', 
     alignItems: 'center', 
-    justifyContent: 'center' 
+    justifyContent: 'center',
+    fontSize: 32
   };
   
-  if (idx === 0) return <div style={style}>ðŸ¥‡</div>;
-  if (idx === 1) return <div style={style}>ðŸ¥ˆ</div>;
-  if (idx === 2) return <div style={style}>ðŸ¥‰</div>;
+  if (idx === 0) return <div style={style}>🥇</div>;
+  if (idx === 1) return <div style={style}>🥈</div>;
+  if (idx === 2) return <div style={style}>🥉</div>;
   
   return <div style={{ 
     ...style, 
@@ -22,7 +23,6 @@ const renderPosicao = (idx) => {
   }}>{idx + 1}</div>;
 };
 
-// FunÃ§Ã£o para formatar valores monetÃ¡rios corretamente
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -101,7 +101,6 @@ const styles = {
     border: '3px solid #cd7f32',
     boxShadow: '0 4px 32px rgba(205, 127, 50, 0.3), 0 1.5px 7px rgba(0,0,0,0.1)',
   },
-  // Novo estilo para todos os itens do top 5
   top5Item: {
     background: 'linear-gradient(90deg, #2a2a2a 0%, #0583ea 100%)',
     border: '3px solid #0583ea',
@@ -166,7 +165,6 @@ const styles = {
     overflowWrap: 'break-word',
     textShadow: '0 1px 3px rgba(0,0,0,0.7)',
   },
-  // NOME DA EQUIPE EM NEGRITO E BRANCO
   equipe: {
     color: '#ffffff',
     fontWeight: 700,
@@ -174,9 +172,8 @@ const styles = {
     lineHeight: 1.07,
     textShadow: '0 1px 2px rgba(0,0,0,0.5)',
   },
-  // COR DOS VALORES AJUSTADA PARA VERDE ESCURO DE ALTO CONTRASTE
   valor: {
-    color: '#2ECC71', // Verde mais escuro e vibrante
+    color: '#2ECC71',
     fontWeight: 900,
     fontSize: '1.5rem',
     textAlign: 'right',
@@ -219,8 +216,6 @@ const userDefault = "/user-default.png";
 const RankingList = ({ data }) => (
   <div style={styles.list}>
     {data.slice(0, 5).map((vendedor, idx) => {
-      // Aplicar estilo do pÃ³dio para os 3 primeiros
-      // e estilo top5 para os demais
       let itemStyle = { ...styles.item, ...styles.top5Item };
       let photoStyle = { ...styles.photo, ...styles.top5Photo };
       
@@ -272,8 +267,7 @@ const Ranking = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-  // URL corrigida para a API do backend
-  const res = await fetch(apiUrl("/api/ranking?empresa=VIEIRACRED"));
+        const res = await fetch(apiUrl("/api/ranking?empresa=VIEIRACRED"));
         
         if (!res.ok) {
           throw new Error(`Erro HTTP: ${res.status}`);
@@ -281,11 +275,9 @@ const Ranking = () => {
         
         const data = await res.json();
         
-        // Se a resposta for um objeto com propriedade ranking (como no exemplo anterior)
         const rankingArray = Array.isArray(data) ? data : 
                             (Array.isArray(data.ranking) ? data.ranking : []);
         
-        // Garante que os valores sejam nÃºmeros
         const formattedData = rankingArray.map(item => ({
           ...item,
           valorVendido: typeof item.valorVendido === 'string'
@@ -298,7 +290,6 @@ const Ranking = () => {
             : (item.valorVendido || 0)
         }));
         
-        // Ordenar por valor vendido (do maior para o menor)
         formattedData.sort((a, b) => b.valorVendido - a.valorVendido);
         
         setRankingData(formattedData);
@@ -313,7 +304,6 @@ const Ranking = () => {
 
     fetchData();
     
-    // Atualizar a cada 30 segundos
     const interval = setInterval(fetchData, 30000);
     
     return () => clearInterval(interval);
@@ -336,7 +326,7 @@ const Ranking = () => {
           <RankingList data={rankingData} />
         ) : (
           <div style={styles.loadingContainer}>
-            <span style={styles.loadingText}>Nenhum dado disponÃ­vel</span>
+            <span style={styles.loadingText}>Nenhum dado disponível</span>
           </div>
         )}
       </div>

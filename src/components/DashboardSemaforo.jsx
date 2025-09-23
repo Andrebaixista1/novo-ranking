@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { apiUrl } from "../utils/api";
 import { FiPhone, FiPause, FiCheck, FiUsers, FiZap, FiCheckCircle } from "react-icons/fi";
 
@@ -46,20 +46,18 @@ export default function DashboardSemaforo() {
     meta_clt: 0,
     logados_estagio: 0,
     meta_estagio: 0,
-    filtro: "CLT+EstÃ¡gio"
+    filtro: "CLT+Estágio"
   });
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-  const res = await fetch(apiUrl("/api/status-operadores"));
+        const res = await fetch(apiUrl("/api/status-operadores"));
         const data = await res.json();
         
-        // Usar diretamente os dados do backend (jÃ¡ filtrados)
         setOperadores(Array.isArray(data.operadores) ? data.operadores : []);
         
-        // Usar os dados de status calculados pelo backend
         setDadosStatus({
           logados: data.logados,
           meta: data.meta,
@@ -91,7 +89,6 @@ export default function DashboardSemaforo() {
     );
   }
 
-  // Extrair dados de status do backend
   const { 
     logados, 
     meta, 
@@ -105,10 +102,8 @@ export default function DashboardSemaforo() {
     filtro 
   } = dadosStatus;
 
-  // Calcular percentual usando dados do backend
   const percent = meta ? Math.round((logados / meta) * 100) : 0;
 
-  // Battery lines visualization
   let linhasLogados = ["bg-gray-50", "bg-gray-50", "bg-gray-50", "bg-gray-50"];
   if (percent <= 24) {
     linhasLogados = ["bg-gray-50", "bg-gray-50", "bg-gray-50", "bg-gray-50"];
@@ -138,7 +133,6 @@ export default function DashboardSemaforo() {
   return (
     <div className="min-h-screen bg-gray-800 flex flex-col items-center py-12 px-2">
       <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-7">
-        {/* Status columns */}
         {STATUS_CONFIG.map((statusConf) => {
           const opsAll = operadores
             .filter((op) => {
@@ -169,7 +163,6 @@ export default function DashboardSemaforo() {
               className={`${statusConf.color} rounded-2xl shadow-lg pb-6 flex flex-col items-center relative overflow-visible`}
               style={{ marginTop: "44px" }}
             >
-              {/* Header */}
               <div className={`w-full flex flex-col items-center ${statusConf.color} pt-14 pb-1 rounded-t-2xl relative z-10`}>
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2">
                   <div className={`rounded-full w-16 h-16 flex items-center justify-center shadow-lg ${statusConf.color} border-4 border-white`}>
@@ -183,10 +176,9 @@ export default function DashboardSemaforo() {
                     ({percentStatus}%)
                   </span>
                 </span>
-                <span className="text-base font-semibold text-white drop-shadow mb-2">MÃ©dia: {avg}</span>
+                <span className="text-base font-semibold text-white drop-shadow mb-2">Média: {avg}</span>
               </div>
               
-              {/* Operator list */}
               <div className="w-full flex-1 flex flex-col overflow-hidden bg-white p-0 rounded-b-2xl px-5 mt-6">
                 {opsTop10.map((item, i) => (
                   <div
@@ -209,13 +201,11 @@ export default function DashboardSemaforo() {
                 ))}
               </div>
               
-              {/* Footer */}
               <div className={`${statusConf.color} h-6 w-full rounded-b-2xl`} />
             </div>
           );
         })}
 
-        {/* Logged in card */}
         <div
           className={`
             rounded-2xl shadow-lg pb-6 flex flex-col items-center relative overflow-visible
@@ -238,11 +228,10 @@ export default function DashboardSemaforo() {
               {percent}%
             </span>
             <span className="text-base font-semibold text-white drop-shadow mb-1">
-              OPERADORES: {logados}/{meta} ({filtro})
+              Operadores: {logados}/{meta} ({filtro})
             </span>
           </div>
           
-          {/* Battery visualization */}
           <div className="w-full flex-1 flex flex-col overflow-hidden p-0 rounded-b-2xl" style={{ background: "#066eea" }}>
             {[0, 1, 2, 3].map((idx) => (
               <div
@@ -263,7 +252,7 @@ export default function DashboardSemaforo() {
                 )}
                 {percent <= 24 && idx === 2 && (
                   <span className="text-red-600 font-bold text-3xl text-center animate-pulse w-full">
-                    AtenÃ§Ã£o: NÃ­vel crÃ­tico de logados!
+                    Atenção: Nível crítico de logados!
                   </span>
                 )}
                 {percent === 100 && idx === 1 && (
@@ -277,7 +266,7 @@ export default function DashboardSemaforo() {
                     }}
                     className="font-bold text-3xl text-center w-full"
                   >
-                    Energia mÃ¡xima para bater meta!
+                    Energia máxima para bater a meta!
                   </span>
                 )}
               </div>
