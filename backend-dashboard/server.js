@@ -640,5 +640,3 @@ process.on('SIGINT', async () => {
   await sql.close();
   process.exit(0);
 });
-
-
