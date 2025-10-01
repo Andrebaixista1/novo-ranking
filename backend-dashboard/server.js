@@ -148,39 +148,45 @@ function isValidImageUrl(url) {
 async function buscarImagemPerfil(vendedorId) {
   try {
     console.log(`🖼️ Buscando imagem de perfil para vendedor: ${vendedorId}`);
-    const localPool = await sql.connect(localDbConfig);
-    
-    // Query para buscar a imagem de perfil na tabela operadores_new
+    // A tabela operadores_new está no banco da nuvem (vieira_online)
+    const pool = await sql.connect(cloudDbConfig);
+
     const imagemQuery = `
-      SELECT image_perfil
+      SELECT TOP 1 usuario_id, imagem_perfil
       FROM operadores_new
       WHERE usuario_id = @vendedorId
     `;
-    
-    const imagemRequest = localPool.request();
-    imagemRequest.input('vendedorId', sql.VarChar, vendedorId);
-    
-    const imagemResult = await imagemRequest.query(imagemQuery);
-    await localPool.close();
-    
-    if (imagemResult.recordset.length > 0) {
-      const imagePerfil = imagemResult.recordset[0].image_perfil;
-      
-      // Verificar se a imagem é uma URL válida
-      if (isValidImageUrl(imagePerfil)) {
+
+    const request = pool.request();
+    request.input('vendedorId', sql.VarChar, String(vendedorId));
+
+    const result = await request.query(imagemQuery);
+    await pool.close();
+
+    if (result.recordset.length > 0) {
+      const row = result.recordset[0];
+      const imagemPerfil = row.imagem_perfil;
+
+      // Se vier URL válida do banco, usa ela
+      if (isValidImageUrl(imagemPerfil) && imagemPerfil.toLowerCase() !== 'false') {
         console.log(`✅ Imagem válida encontrada para vendedor ${vendedorId}`);
-        return imagePerfil;
-      } else {
-        console.log(`ℹ️ Imagem não disponivel ou inválida para vendedor ${vendedorId}, usando padrão`);
-        return '/LOGO-vieira.jpeg';
+        return imagemPerfil;
       }
-    } else {
-      console.log(`ℹ️ Nenhum registro encontrado para vendedor ${vendedorId}, usando padrão`);
-      return '/LOGO-vieira.jpeg';
+
+      // Caso contrário, monta URL do CDN usando o usuario_id
+      const cdnUrl = `https://cdn.newcorban.com.br/747/profile_image/${row.usuario_id}`;
+      console.log(`ℹ️ Usando CDN para vendedor ${vendedorId}: ${cdnUrl}`);
+      return cdnUrl;
     }
+
+    // Se não encontrar no operadores_new, tenta CDN direto com o id recebido
+    const fallbackCdn = `https://cdn.newcorban.com.br/747/profile_image/${vendedorId}`;
+    console.log(`ℹ️ Sem registro em operadores_new. Usando CDN direto: ${fallbackCdn}`);
+    return fallbackCdn;
   } catch (error) {
     console.error(`❌ Erro ao buscar imagem para vendedor ${vendedorId}:`, error.message);
-    return '/LOGO-vieira.jpeg';
+    // Em caso de erro, tentar ainda o CDN antes do logo padrão
+    return `https://cdn.newcorban.com.br/747/profile_image/${vendedorId}`;
   }
 }
 
